@@ -332,6 +332,8 @@ ALL_DEFAULT_INSTALLED_MODULES += $(event_log_tags_file)
 # Targets for boot/OS images
 # #################################################################
 
+ifneq ($(strip $(TARGET_NO_RAMDISK)),true)
+
 # -----------------------------------------------------------------
 # the ramdisk
 INTERNAL_RAMDISK_FILES := $(filter $(TARGET_ROOT_OUT)/%, \
@@ -348,6 +350,7 @@ $(INSTALLED_RAMDISK_TARGET): $(MKBOOTFS) $(INTERNAL_RAMDISK_FILES) | $(MINIGZIP)
 	$(call pretty,"Target ram disk: $@")
 	$(hide) $(MKBOOTFS) $(TARGET_ROOT_OUT) | $(MINIGZIP) > $@
 
+endif # ($(strip $(TARGET_NO_RAMDISK)),true)
 
 ifneq ($(strip $(TARGET_NO_KERNEL)),true)
 
@@ -513,6 +516,7 @@ endef
 
 target_notice_file_txt := $(TARGET_OUT_INTERMEDIATES)/NOTICE.txt
 target_notice_file_html := $(TARGET_OUT_INTERMEDIATES)/NOTICE.html
+target_notice_file_txt_gz := $(TARGET_OUT_INTERMEDIATES)/NOTICE.txt.gz
 target_notice_file_html_gz := $(TARGET_OUT_INTERMEDIATES)/NOTICE.html.gz
 tools_notice_file_txt := $(HOST_OUT_INTERMEDIATES)/NOTICE.txt
 tools_notice_file_html := $(HOST_OUT_INTERMEDIATES)/NOTICE.html
@@ -544,9 +548,16 @@ installed_notice_html_gz := $(TARGET_OUT)/etc/NOTICE.html.gz
 $(installed_notice_html_gz): $(target_notice_file_html_gz) | $(ACP)
 	$(copy-file-to-target)
 
+$(target_notice_file_txt_gz): $(target_notice_file_txt) | $(MINIGZIP)
+	$(hide) $(MINIGZIP) -9 < $< > $@
+installed_notice_txt_gz := $(TARGET_OUT)/etc/NOTICE.txt.gz
+$(installed_notice_txt_gz): $(target_notice_file_txt_gz) | $(ACP)
+	$(copy-file-to-target)
+
 # if we've been run my mm, mmm, etc, don't reinstall this every time
 ifeq ($(ONE_SHOT_MAKEFILE),)
-ALL_DEFAULT_INSTALLED_MODULES += $(installed_notice_html_gz)
+#ALL_DEFAULT_INSTALLED_MODULES += $(installed_notice_html_gz)
+ALL_DEFAULT_INSTALLED_MODULES += $(installed_notice_txt_gz)
 endif
 
 # The kernel isn't really a module, so to get its module file in there, we
