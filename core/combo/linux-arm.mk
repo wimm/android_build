@@ -87,7 +87,7 @@ android_config_h := $(call select-android-config-h,linux-arm)
 arch_include_dir := $(dir $(android_config_h))
 
 $(combo_target)GLOBAL_CFLAGS += \
-			-msoft-float -fpic \
+			-mfpu=vfp -mfloat-abi=softfp -fpic \
 			-ffunction-sections \
 			-funwind-tables \
 			-fstack-protector \

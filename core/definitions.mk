@@ -1293,10 +1293,20 @@ endef
 # Create a mostly-empty .jar file that we'll add to later.
 # The MacOS jar tool doesn't like creating empty jar files,
 # so we need to give it something.
+# --- WIMM - zrosen - 11/29/11 ---
+# A custom manifest file can be declared with LOCAL_JAR_MANIFEST, however 
+# it is currently only used by BUILD_HOST_JAVA_LIBRARY.
+# We would like to use a custom manifest when building our framework library.
+# However, when building BUILD_JAVA_LIBRARY, classes.jar will get the manifest
+# but the final javalib.jar will not.
+# This fix ensures that the manifest will be included in the final javalib.jar
+# when creating the package for BUILD_JAVA_LIBRARY.
+# NOTE: I've replaced the "cd" command with the jar option "-C" so that jar 
+# has access to the manifest file using the relative path.
 define create-empty-package
 @mkdir -p $(dir $@)
 $(hide) touch $(dir $@)/dummy
-$(hide) (cd $(dir $@) && jar cf $(notdir $@) dummy)
+$(hide) jar $(if $(strip $(PRIVATE_JAR_MANIFEST)),-cmf $(PRIVATE_JAR_MANIFEST),-cf) $@ -C $(dir $@) dummy
 $(hide) zip -qd $@ dummy
 $(hide) rm $(dir $@)/dummy
 endef

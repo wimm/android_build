@@ -96,14 +96,14 @@ endif
 ifneq ($(HOST_OS),windows)
 
 # Check for the correct version of java
-java_version := $(shell java -version 2>&1 | head -n 1 | grep '[ "]1\.5[\. "$$]')
+java_version := $(shell java -version 2>&1 | head -n 1 | grep '[ "]1\.[56][\. "$$]')
 ifeq ($(strip $(java_version)),)
 $(info ************************************************************)
 $(info You are attempting to build with the incorrect version)
 $(info of java.)
 $(info $(space))
 $(info Your version is: $(shell java -version 2>&1 | head -n 1).)
-$(info The correct version is: 1.5.)
+$(info The correct version is: 1.5 ~ 1.6.)
 $(info $(space))
 $(info Please follow the machine setup instructions at)
 $(info $(space)$(space)$(space)$(space)http://source.android.com/download)
@@ -112,14 +112,14 @@ $(error stop)
 endif
 
 # Check for the correct version of javac
-javac_version := $(shell javac -version 2>&1 | head -n 1 | grep '[ "]1\.5[\. "$$]')
+javac_version := $(shell javac -version 2>&1 | head -n 1 | grep '[ "]1\.[56][\. "$$]')
 ifeq ($(strip $(javac_version)),)
 $(info ************************************************************)
 $(info You are attempting to build with the incorrect version)
 $(info of javac.)
 $(info $(space))
 $(info Your version is: $(shell javac -version 2>&1 | head -n 1).)
-$(info The correct version is: 1.5.)
+$(info The correct version is: 1.5 ~ 1.6.)
 $(info $(space))
 $(info Please follow the machine setup instructions at)
 $(info $(space)$(space)$(space)$(space)http://source.android.com/download)
@@ -216,7 +216,7 @@ endif # !user_variant
 
 ifeq (true,$(strip $(enable_target_debugging)))
   # Target is more debuggable and adbd is on by default
-  ADDITIONAL_DEFAULT_PROPERTIES += ro.debuggable=1 persist.service.adb.enable=1
+  ADDITIONAL_DEFAULT_PROPERTIES += ro.debuggable=1 persist.service.adb.enable=1 persist.adb.tcp.port=5555
   # Include the debugging/testing OTA keys in this build.
   INCLUDE_TEST_OTA_KEYS := true
 else # !enable_target_debugging
@@ -264,25 +264,27 @@ ifneq ($(filter dalvik.gc.type-precise,$(PRODUCT_TAGS)),)
   ADDITIONAL_BUILD_PROPERTIES += dalvik.vm.dexopt-flags=m=y
 endif
 
-# Install an apns-conf.xml file if one's not already being installed.
-ifeq (,$(filter %:system/etc/apns-conf.xml, $(PRODUCT_COPY_FILES)))
-  PRODUCT_COPY_FILES += \
-        development/data/etc/apns-conf_sdk.xml:system/etc/apns-conf.xml
-  ifeq ($(filter eng tests,$(TARGET_BUILD_VARIANT)),)
-    $(warning implicitly installing apns-conf_sdk.xml)
-  endif
-endif
-# If we're on an eng or tests build, but not on the sdk, and we have
-# a better one, use that instead.
-ifneq ($(filter eng tests,$(TARGET_BUILD_VARIANT)),)
-  ifndef is_sdk_build
-    apns_to_use := $(wildcard vendor/google/etc/apns-conf.xml)
-    ifneq ($(strip $(apns_to_use)),)
-      PRODUCT_COPY_FILES := \
-            $(filter-out %:system/etc/apns-conf.xml,$(PRODUCT_COPY_FILES)) \
-            $(strip $(apns_to_use)):system/etc/apns-conf.xml
+ifeq ($(TARGET_WIMM),)
+    # Install an apns-conf.xml file if one's not already being installed.
+    ifeq (,$(filter %:system/etc/apns-conf.xml, $(PRODUCT_COPY_FILES)))
+      PRODUCT_COPY_FILES += \
+            development/data/etc/apns-conf_sdk.xml:system/etc/apns-conf.xml
+      ifeq ($(filter eng tests,$(TARGET_BUILD_VARIANT)),)
+        $(warning implicitly installing apns-conf_sdk.xml)
+      endif
     endif
-  endif
+    # If we're on an eng or tests build, but not on the sdk, and we have
+    # a better one, use that instead.
+    ifneq ($(filter eng tests,$(TARGET_BUILD_VARIANT)),)
+      ifndef is_sdk_build
+        apns_to_use := $(wildcard vendor/google/etc/apns-conf.xml)
+        ifneq ($(strip $(apns_to_use)),)
+          PRODUCT_COPY_FILES := \
+                $(filter-out %:system/etc/apns-conf.xml,$(PRODUCT_COPY_FILES)) \
+                $(strip $(apns_to_use)):system/etc/apns-conf.xml
+        endif
+      endif
+    endif
 endif
 
 ADDITIONAL_BUILD_PROPERTIES += net.bt.name=Android

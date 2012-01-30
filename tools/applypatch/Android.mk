@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# keith 2011.02.23
+ifeq ($(WIMM_LITE),)
+
 ifneq ($(TARGET_SIMULATOR),true)
 
 LOCAL_PATH := $(call my-dir)
@@ -57,3 +60,5 @@ LOCAL_STATIC_LIBRARIES += libz libbz
 include $(BUILD_HOST_EXECUTABLE)
 
 endif  # !TARGET_SIMULATOR
+
+endif # WIMM_LITE
