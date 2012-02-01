@@ -112,13 +112,13 @@ TARGET_PRELINK_MODULE := true
 include $(BUILD_SYSTEM)/envsetup.mk
 
 # Boards may be defined under $(SRC_TARGET_DIR)/board/$(TARGET_DEVICE)
-# or under vendor/*/$(TARGET_DEVICE).  Search in both places, but
+# or under device/*/$(TARGET_DEVICE).  Search in both places, but
 # make sure only one exists.
 # Real boards should always be associated with an OEM vendor.
 board_config_mk := \
 	$(strip $(wildcard \
 		$(SRC_TARGET_DIR)/board/$(TARGET_DEVICE)/BoardConfig.mk \
-		vendor/*/$(TARGET_DEVICE)/BoardConfig.mk \
+		device/*/$(TARGET_DEVICE)/BoardConfig.mk \
 	))
 ifeq ($(board_config_mk),)
   $(error No config file found for TARGET_DEVICE $(TARGET_DEVICE))
