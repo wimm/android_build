@@ -764,6 +764,7 @@ findbugs: $(INTERNAL_FINDBUGS_HTML_TARGET) $(INTERNAL_FINDBUGS_XML_TARGET)
 
 .PHONY: clean
 clean:
+	$(MAKE) clean-dhd-kernel
 	@rm -rf $(OUT_DIR)
 	@echo "Entire build directory removed."
 
