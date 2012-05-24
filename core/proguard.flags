@@ -7,7 +7,8 @@
 -useuniqueclassmembernames
 
 # dex does not like code run through proguard optimize and preverify steps.
--dontoptimize
+#-dontoptimize
+-optimizations code/removal/*
 -dontpreverify
 
 # Don't obfuscate. We only need dead code striping.
@@ -70,4 +71,7 @@
 #  public static final android.os.Parcelable$Creator *;
 #}
 
-
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+}
