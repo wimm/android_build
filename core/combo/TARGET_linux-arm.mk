@@ -104,6 +104,14 @@ TARGET_GLOBAL_CFLAGS += \
 			-include $(android_config_h) \
 			-I $(arch_include_dir)
 
+ifeq ($(TARGET_RELEASE),true)
+TARGET_GLOBAL_CFLAGS += -DDEBUG_LOGGING=0
+TARGET_GLOBAL_CPPFLAGS += -DDEBUG_LOGGING=0
+else
+TARGET_GLOBAL_CFLAGS += -DDEBUG_LOGGING=1
+TARGET_GLOBAL_CPPFLAGS += -DDEBUG_LOGGING=1
+endif
+
 # This is to avoid the dreaded warning compiler message:
 #   note: the mangling of 'va_list' has changed in GCC 4.4
 #
